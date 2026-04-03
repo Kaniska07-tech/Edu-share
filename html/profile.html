@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header >
+   <h1 id="Show"></h1>
+      <nav>
+
+<a href="donate.html">Donate</a>
+<a href="request.html">Request</a>
+<a href="profile.html">Profile</a>
+</nav>
+  </header>
+
+  <main class="container profile-main">
+    <section class="profile-card card">
+      <div class="profile-avatar">
+        <img id="userPhoto" alt="User Profile Picture" />
+        <div class="avatar-overlay"><span class="online-indicator"></span></div>
+      </div>
+
+      <div class="user-info-section">
+        <div class="info-item"><label>Name</label><span id="userName" class="info-value">-</span></div>
+        <div class="info-item"><label>Email</label><span id="userEmail" class="info-value">-</span></div>
+      </div>
+
+      <div class="donation-summary card">
+        <h3>Donation Activity</h3>
+        <p id="donationCount"></p>
+        <small>Keep sharing to make more impact!</small>
+      </div>
+
+      <div class="actions">
+        <button id="signOutBtn" class="btn btn-primary"><span class="btn-icon">🚪</span> Sign Out</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer welcome-footer">
+    <p>Secure authentication powered by Firebase</p>
+  </footer>
+
+  <script type="module" src="js/in.js"></script>
+</body>
+</html>
