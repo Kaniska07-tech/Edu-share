@@ -14,37 +14,66 @@
 <a href="donate.html">Donate</a>
 <a href="request.html">Request</a>
 <a href="profile.html">Profile</a>
+<a href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
+<a href="delivery.html" id="deliveryLink" style="display:none;">Delivery Panel</a>
+
 </nav>
   </header>
+<div class="profile-card">
 
-  <main class="container profile-main">
-    <section class="profile-card card">
+  <h2 id="Show"></h2>
+
+  <div class="profile-layout">
+
+    <div>
       <div class="profile-avatar">
-        <img id="userPhoto" alt="User Profile Picture" />
-        <div class="avatar-overlay"><span class="online-indicator"></span></div>
+        <img id="userPhoto">
       </div>
 
       <div class="user-info-section">
-        <div class="info-item"><label>Name</label><span id="userName" class="info-value">-</span></div>
-        <div class="info-item"><label>Email</label><span id="userEmail" class="info-value">-</span></div>
-      </div>
+        <div class="info-item">
+          <label>Name</label>
+          <span id="userName"></span>
+        </div>
 
-      <div class="donation-summary card">
+        <div class="info-item">
+          <label>Email</label>
+          <span id="userEmail"></span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="right-panel">
+
+      <div class="donation-summary">
         <h3>Donation Activity</h3>
         <p id="donationCount"></p>
-        <small>Keep sharing to make more impact!</small>
+      </div>
+
+       <div>
+        <h3>Notifications</h3>
+        <div id="notificationContainer"></div>
       </div>
 
       <div class="actions">
-        <button id="signOutBtn" class="btn btn-primary"><span class="btn-icon">🚪</span> Sign Out</button>
+        <button id="signOutBtn">Sign Out</button>
       </div>
-    </section>
-  </main>
+
+     
+    </div>
+
+  </div>
+
+</div>
+
+  
 
   <footer class="footer welcome-footer">
     <p>Secure authentication powered by Firebase</p>
   </footer>
-
+  <script type="module" src="js/notifications.js"></script>
+<script type="module" src="js/navbar.js"></script>
   <script type="module" src="js/in.js"></script>
 </body>
 </html>

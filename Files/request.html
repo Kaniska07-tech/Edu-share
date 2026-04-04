@@ -17,6 +17,9 @@
 <a href="donate.html">Donate</a>
 <a href="request.html">Request</a>
 <a href="profile.html">Profile</a>
+<a href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
+<a href="delivery.html" id="deliveryLink" style="display:none;">Delivery Panel</a>
+
 </nav>
 
 </header>
@@ -31,7 +34,7 @@
 <input id="itemName" type="text" placeholder="Required Item" required>
 <input id="subject" type="text" placeholder="Subject">
 <input id="location" type="text" placeholder="Location">
-
+<input id="price" type="number" placeholder="Enter price between 50-100">
 <button type="button" id="submitBtn">Submit Request</button>
 
 </form>
@@ -46,7 +49,7 @@
 <p>Crafted with 💡 by <strong>Algorithm Alchemist</strong></p>
 
 </footer>
-
+<script type="module" src="js/navbar.js"></script>
 <script type="module" src="js/request.js"></script>
 
 </body>

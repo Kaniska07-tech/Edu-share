@@ -5,10 +5,9 @@ import {
   addDoc,
   doc,
   updateDoc,
-  getDoc,
-  query,
-  where
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 async function loadRequests() {
   const container = document.getElementById("requestContainer");
@@ -16,144 +15,204 @@ async function loadRequests() {
 
   container.innerHTML = "";
 
-  try {
-    const snapshot = await getDocs(collection(db, "requests"));
+  const snapshot = await getDocs(collection(db, "requests"));
 
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const requestId = docSnap.id;
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const requestId = docSnap.id;
 
-      if (data.status === "open") {
+    if (data.status === "withdrawn") return;
 
-        const card = document.createElement("div");
-        card.className = "request-card";
-  const isOwner =
-          auth.currentUser && auth.currentUser.uid === data.userId;
+    const card = document.createElement("div");
+    card.className = "request-card";
 
-        const actionButton = isOwner
-          ? `<button id="withdraw-${requestId}" style="background:#ef4444;">Withdraw Request</button>`
-          : `<button id="btn-${requestId}">Help this student</button>`;
-        card.innerHTML = `
-          <h3>${data.itemName}</h3>
-          <p><strong>Subject:</strong> ${data.subject || "N/A"}</p>
-          <p><strong>Location:</strong> ${data.location || "N/A"}</p>
+    const isRequester = auth.currentUser.uid === data.userId;
+    const isMatched = data.status === "matched";
 
-         ${actionButton}
-          <div id="form-${requestId}" style="display:none; margin-top:10px;">
-  <input id="name-${requestId}" placeholder="Your Name">
-  <input id="email-${requestId}" placeholder="Your Email">
-  <input id="address-${requestId}" placeholder="Your Address">
+    let actionButton = "";
 
-  <div style="display:flex; gap:10px; margin-top:8px;">
-    <button type="button" id="submit-${requestId}">Submit</button>
-    <button type="button" id="close-${requestId}">Close</button>
-  </div>
-</div>
-        `;
+  
+    if (data.status === "open") {
+      actionButton = `
+        <button id="btn-${requestId}">Help this student</button>
 
-        container.appendChild(card);
-   if (isOwner) {
-          document
-            .getElementById(`withdraw-${requestId}`)
-            .addEventListener("click", async () => {
-              try {
-                const requestRef = doc(db, "requests", requestId);
+        <div id="form-${requestId}" style="display:none;">
+          <input id="name-${requestId}" placeholder="Your Name">
+          <input id="email-${requestId}" placeholder="Your Email">
+          <input id="address-${requestId}" placeholder="Your Address">
 
-                await updateDoc(requestRef, {
-                  status: "withdrawn"
-                });
-
-                alert("Request withdrawn!");
-
-                loadRequests();
-
-              } catch (error) {
-                console.error(error);
-                alert("Error withdrawing request");
-              }
-            });
-        }
-  if (!isOwner) {
-        // 🔁 Toggle form
-        document.getElementById(`btn-${requestId}`).addEventListener("click", () => {
-          const form = document.getElementById(`form-${requestId}`);
-          form.style.display =
-            form.style.display === "none" ? "block" : "none";
-        });
-       document.getElementById(`close-${requestId}`).addEventListener("click", () => {
-  const form = document.getElementById(`form-${requestId}`);
-  form.style.display = "none";
-});
-        // 🚀 Submit logic
-        document.getElementById(`submit-${requestId}`).addEventListener("click", async () => {
-
-          if (!auth.currentUser) {
-            alert("Please login first");
-            return;
-          }
-
-          const donorName = document.getElementById(`name-${requestId}`).value;
-          const donorEmail = document.getElementById(`email-${requestId}`).value;
-          const donorAddress = document.getElementById(`address-${requestId}`).value;
-
-          if (!donorName || !donorEmail || !donorAddress) {
-            alert("Fill all fields");
-            return;
-          }
-
-          try {
-            const requestRef = doc(db, "requests", requestId);
-            const requestSnap = await getDoc(requestRef);
-
-            if (!requestSnap.exists()) {
-              alert("Request not found");
-              return;
-            }
-
-            if (requestSnap.data().status !== "open") {
-              alert("Already taken!");
-              return;
-            }
-
-            if (requestSnap.data().userId === auth.currentUser.uid) {
-              alert("You can't donate to your own request!");
-              return;
-            }
-
-            await addDoc(collection(db, "donations"), {
-              requestId,
-              itemName: data.itemName,
-              donorId: auth.currentUser.uid,
-              requesterId: data.userId,
-              donorName,
-              donorEmail,
-              donorAddress,
-              status: "pending",
-              createdAt: new Date()
-            });
-
-           await updateDoc(requestRef, {
-              status: "matched"
-            });
-
-            alert("Donation submitted!");
-            loadRequests();
-
-          } catch (error) {
-            console.error(error);
-            alert("Error submitting donation");
-          }
-
-        }); // ✅ submit listener closed
-
-      } // ✅ if closed
+          <button id="submit-${requestId}">Submit</button>
+          <button id="close-${requestId}" style="background:#ccc;">Close</button>
+        </div>
+      `;
     }
 
-    }); // ✅ forEach closed
+    
+    else if (isMatched && !isRequester) {
+      actionButton = `
+        <button onclick="cancelDonation('${requestId}')"
+        style="background:#ef4444;">
+        Cancel Donation
+        </button>`;
+    }
+
+   
+    else if (isRequester) {
+      actionButton = `
+        <button id="withdraw-${requestId}">
+          Withdraw Request
+        </button>`;
+    }
+
+  
+    card.innerHTML = `
+      <h3>${data.itemName}</h3>
+      <p><strong>Subject:</strong> ${data.subject || "N/A"}</p>
+      <p><strong>Location:</strong> ${data.location || "N/A"}</p>
+      <p><strong>Price:</strong> ₹${data.price || "N/A"} (COD)</p>
+      ${actionButton}
+    `;
+
+    container.appendChild(card);
+
+    const btn = document.getElementById(`btn-${requestId}`);
+    const form = document.getElementById(`form-${requestId}`);
+
+    if (btn && form) {
+      btn.addEventListener("click", () => {
+        form.style.display =
+          form.style.display === "none" ? "block" : "none";
+      });
+    }
+
+ 
+    const closeBtn = document.getElementById(`close-${requestId}`);
+    if (closeBtn && form) {
+      closeBtn.addEventListener("click", () => {
+        form.style.display = "none";
+      });
+    }
+
+    const submitBtn = document.getElementById(`submit-${requestId}`);
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", async () => {
+
+        if (!auth.currentUser) {
+          alert("Please login first");
+          return;
+        }
+
+        const donorName = document.getElementById(`name-${requestId}`).value;
+        const donorEmail = document.getElementById(`email-${requestId}`).value;
+        const donorAddress = document.getElementById(`address-${requestId}`).value;
+
+        if (!donorName || !donorEmail || !donorAddress) {
+          alert("Fill all fields");
+          return;
+        }
+
+        try {
+          const requestRef = doc(db, "requests", requestId);
+          const requestSnap = await getDoc(requestRef);
+          const requestData = requestSnap.data();
+
+         
+          if (requestData.userId === auth.currentUser.uid) {
+            alert("You can't donate to your own request!");
+            return;
+          }
+
+       
+          if (requestData.status !== "open") {
+            alert("Already taken!");
+            return;
+          }
+
+      
+          await addDoc(collection(db, "deliveries"), {
+            requestId,
+            itemName: requestData.itemName,
+            donorId: auth.currentUser.uid,
+            requesterId: requestData.userId,
+
+            donorName,
+            donorEmail,
+            donorAddress,
+
+            price: requestData.price, // 💰
+
+            status: "pickup_pending",
+            deliveryPersonId: null,
+            createdAt: new Date()
+          });
+
+          await updateDoc(requestRef, {
+            status: "matched"
+          });
+
+          alert("Donation submitted! (Cash on Delivery)");
+
+          loadRequests();
+
+        } catch (error) {
+          console.error(error);
+          alert("Error submitting donation");
+        }
+      });
+    }
+
+    
+    const withdrawBtn = document.getElementById(`withdraw-${requestId}`);
+
+    if (withdrawBtn) {
+      withdrawBtn.addEventListener("click", async () => {
+
+        if (!confirm("Withdraw this request?")) return;
+
+        await updateDoc(doc(db, "requests", requestId), {
+          status: "withdrawn"
+        });
+
+        alert("Request withdrawn");
+
+        loadRequests();
+      });
+    }
+
+  });
+}
+
+window.cancelDonation = async function (requestId) {
+
+  if (!confirm("Cancel this donation?")) return;
+
+  try {
+    const requestRef = doc(db, "requests", requestId);
+
+    await updateDoc(requestRef, {
+      status: "open"
+    });
+
+    const deliverySnap = await getDocs(collection(db, "deliveries"));
+
+    deliverySnap.forEach(async (d) => {
+      if (d.data().requestId === requestId) {
+        await updateDoc(doc(db, "deliveries", d.id), {
+          status: "cancelled"
+        });
+      }
+    });
+
+    alert("Donation cancelled");
+
+    loadRequests();
 
   } catch (error) {
-    console.error("Error loading requests:", error);
+    console.error(error);
+    alert("Error cancelling donation");
   }
+};
 
-} // ✅ function closed
+
 window.addEventListener("DOMContentLoaded", loadRequests);
