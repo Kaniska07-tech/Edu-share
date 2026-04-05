@@ -11,7 +11,20 @@ import {
 import { onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import { deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+window.deleteDelivery = async function (deliveryId) {
+  if (!confirm("Delete this delivery?")) return;
+
+  try {
+    await deleteDoc(doc(db, "deliveries", deliveryId));
+    alert("Deleted successfully");
+    loadDeliveries();
+  } catch (error) {
+    console.error(error);
+    alert("Error deleting");
+  }
+};
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -64,6 +77,8 @@ async function loadDeliveries() {
       <p><strong>Requester ID:</strong> ${data.requesterId}</p>
      <p><strong>Price:</strong> ₹${data.price || "N/A"} (COD)</p>
       <p>
+      <p><strong>Donor Phone:</strong> ${data.donorPhone || "N/A"}</p>
+<p><strong>Requester Phone:</strong> ${data.requesterPhone || "N/A"}</p>
         <strong>Status:</strong> 
         <span style="
           color:
@@ -97,11 +112,25 @@ function renderButtons(data, deliveryId) {
   }
 
   if (data.status === "cancelled") {
-    return `<p style="color:red;">Cancelled</p>`;
+    return `
+    <button onclick="deleteDelivery('${deliveryId}')"
+    style="background:#111;color:white;">
+      Delete
+    </button>
+  `;
   }
 
+  if (data.status === "delivered") {
+  return `
+    <button onclick="deleteDelivery('${deliveryId}')"
+    style="background:#111;color:white;">
+      Delete
+    </button>
+  `;
+}
   return `<p>Completed</p>`;
 }
+
 
 
 window.pickup = async function (deliveryId) {
@@ -152,7 +181,7 @@ window.deliver = async function (deliveryId) {
     const data = snap.data();
 
     console.log("Full delivery data:", data);
-console.log("Request ID:", data.requestId);
+    console.log("Request ID:", data.requestId);
     if (data.deliveryPersonId !== auth.currentUser.uid) {
       alert("This is not your delivery!");
       return;

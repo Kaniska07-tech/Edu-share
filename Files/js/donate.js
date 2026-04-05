@@ -48,7 +48,7 @@ else if (isRequester) {
           <input id="name-${requestId}" placeholder="Your Name">
           <input id="email-${requestId}" placeholder="Your Email">
           <input id="address-${requestId}" placeholder="Your Address">
-
+          <input id="phone-${requestId}" type="number" placeholder="Your Phone Number">
           <button id="submit-${requestId}">Submit</button>
           <button id="close-${requestId}" style="background:#ccc;">Close</button>
         </div>
@@ -108,8 +108,8 @@ else if (isRequester) {
         const donorName = document.getElementById(`name-${requestId}`).value;
         const donorEmail = document.getElementById(`email-${requestId}`).value;
         const donorAddress = document.getElementById(`address-${requestId}`).value;
-
-        if (!donorName || !donorEmail || !donorAddress) {
+        const donorPhone = document.getElementById(`phone-${requestId}`).value;
+        if (!donorName || !donorEmail || !donorAddress || !donorPhone) {
           alert("Fill all fields");
           return;
         }
@@ -141,7 +141,8 @@ else if (isRequester) {
             donorName,
             donorEmail,
             donorAddress,
-
+            donorPhone,
+            requesterPhone: requestData.phone || "N/A",
             price: requestData.price, // 💰
 
             status: "pickup_pending",
@@ -176,8 +177,17 @@ else if (isRequester) {
           status: "withdrawn"
         });
 
-        alert("Request withdrawn");
+       
 
+const deliverySnap = await getDocs(collection(db, "deliveries"));
+
+for (const d of deliverySnap.docs) {
+  if (d.data().requestId === requestId) {
+    await updateDoc(doc(db, "deliveries", d.id), {
+      status: "cancelled"
+    });
+  }
+} alert("Request withdrawn");
         loadRequests();
       });
     }
@@ -198,14 +208,13 @@ window.cancelDonation = async function (requestId) {
 
     const deliverySnap = await getDocs(collection(db, "deliveries"));
 
-    deliverySnap.forEach(async (d) => {
-      if (d.data().requestId === requestId) {
-        await updateDoc(doc(db, "deliveries", d.id), {
-          status: "cancelled"
-        });
-      }
+   for (const d of deliverySnap.docs) {
+  if (d.data().requestId === requestId) {
+    await updateDoc(doc(db, "deliveries", d.id), {
+      status: "cancelled"
     });
-
+  }
+}
     alert("Donation cancelled");
 
     loadRequests();

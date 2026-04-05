@@ -6,6 +6,7 @@ async function submitRequest() {
   const subject = document.getElementById("subject").value;
   const location = document.getElementById("location").value;
 const price = parseInt(document.getElementById("price").value);
+const phone = document.getElementById("phone").value;
 if (price < 50 || price > 100) {
   alert("Price must be between ₹50 and ₹100");
   return;
@@ -16,6 +17,7 @@ if (price < 50 || price > 100) {
       subject,
       location,
       price,
+      phone, 
       userId: auth.currentUser.uid,
       status: "open",
       createdAt: new Date()
