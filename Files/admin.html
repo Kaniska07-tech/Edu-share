@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>Admin Panel</h1>
+  <nav>
+    <a href="donate.html">Donate</a>
+<a href="request.html">Request</a>
+    <a href="profile.html">Profile</a>
+  </nav>
+</header>
+
+<section class="form-section">
+  <h2>Manage Users</h2>
+<div style="margin-top:20px;">
+  <select id="roleFilter">
+    <option value="all">All Users</option>
+    <option value="student">Students</option>
+    <option value="delivery">Delivery Boys</option>
+  </select>
+
+  <input type="text" id="searchInput" placeholder="Search by name/email">
+</div>
+  <div id="userContainer"></div>
+
+</section>
+
+<script type="module" src="js/admin.js"></script>
+
+</body>
+</html>

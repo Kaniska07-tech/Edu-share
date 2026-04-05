@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Authenticator - Secure Access with Firebase Authentication">
+  <title>Authenticator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <main class="auth-container">
+   
+      <header class="auth-header">
+    <h1>Sign In/Up</h1>
+       
+      </header>
+
+      <section class="auth-section">
+         <p class="subtitle">Secure access with Firebase authentication</p>
+        <button id="googleSignInBtn" class="btn btn-google">
+          <span class="btn-icon">🔒</span>
+          Sign in with Google
+        </button>
+      </section>
+      <div id="message" class="message" role="alert"></div>
+
+      
+      <footer class="auth-footer">
+        <p><small>Powered by Firebase Authentication</small></p>
+      </footer>
+    </main>
+  </div>
+
+  
+  <script type="module" src="js/authentictn.js"></script>
+</body>
+</html>
