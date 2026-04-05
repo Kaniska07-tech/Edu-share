@@ -151,7 +151,8 @@ window.deliver = async function (deliveryId) {
     const snap = await getDoc(deliveryRef);
     const data = snap.data();
 
-    
+    console.log("Full delivery data:", data);
+console.log("Request ID:", data.requestId);
     if (data.deliveryPersonId !== auth.currentUser.uid) {
       alert("This is not your delivery!");
       return;
@@ -160,7 +161,11 @@ window.deliver = async function (deliveryId) {
     await updateDoc(deliveryRef, {
       status: "delivered"
     });
+  const requestRef = doc(db, "requests", data.requestId);
 
+await updateDoc(requestRef, {
+  status: "completed"
+});
     
     await addDoc(collection(db, "notifications"), {
       userId: data.requesterId,

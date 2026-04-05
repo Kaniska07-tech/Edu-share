@@ -21,7 +21,7 @@ async function loadRequests() {
     const data = docSnap.data();
     const requestId = docSnap.id;
 
-    if (data.status === "withdrawn") return;
+    if (data.status === "withdrawn" || data.status === "completed") return;
 
     const card = document.createElement("div");
     card.className = "request-card";
@@ -31,8 +31,16 @@ async function loadRequests() {
 
     let actionButton = "";
 
-  
-    if (data.status === "open") {
+ if (data.status === "completed" || data.status === "withdrawn") {
+  actionButton = "";
+}
+else if (isRequester) {
+  actionButton = `
+    <button id="withdraw-${requestId}">
+      Withdraw Request
+    </button>`;
+}
+  else  if (data.status === "open") {
       actionButton = `
         <button id="btn-${requestId}">Help this student</button>
 
@@ -57,12 +65,6 @@ async function loadRequests() {
     }
 
    
-    else if (isRequester) {
-      actionButton = `
-        <button id="withdraw-${requestId}">
-          Withdraw Request
-        </button>`;
-    }
 
   
     card.innerHTML = `
