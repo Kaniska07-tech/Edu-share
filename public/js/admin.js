@@ -43,7 +43,7 @@ async function loadUsers() {
   snapshot.forEach((docSnap) => {
     const data = docSnap.data();
     const userId = docSnap.id;
-
+if (data.role === "admin") return;
    
     if (userId === auth.currentUser.uid) return;
 
