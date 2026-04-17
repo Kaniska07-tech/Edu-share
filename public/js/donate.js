@@ -113,7 +113,11 @@ else if (isRequester) {
           alert("Fill all fields");
           return;
         }
+if (donorPhone.length !== 10) {
+  alert("Phone number must be exactly 10 digits");
+  return;
 
+}
         try {
           const requestRef = doc(db, "requests", requestId);
           const requestSnap = await getDoc(requestRef);
