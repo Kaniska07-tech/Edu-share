@@ -21,7 +21,7 @@ async function loadRequests() {
     const data = docSnap.data();
     const requestId = docSnap.id;
 
-    if (data.status === "withdrawn") return;
+    if (data.status === "withdrawn" || data.status === "completed") return;
 
     const card = document.createElement("div");
     card.className = "request-card";
@@ -31,8 +31,16 @@ async function loadRequests() {
 
     let actionButton = "";
 
-  
-    if (data.status === "open") {
+ if (data.status === "completed" || data.status === "withdrawn") {
+  actionButton = "";
+}
+else if (isRequester) {
+  actionButton = `
+    <button id="withdraw-${requestId}">
+      Withdraw Request
+    </button>`;
+}
+  else  if (data.status === "open") {
       actionButton = `
         <button id="btn-${requestId}">Help this student</button>
 
@@ -40,7 +48,7 @@ async function loadRequests() {
           <input id="name-${requestId}" placeholder="Your Name">
           <input id="email-${requestId}" placeholder="Your Email">
           <input id="address-${requestId}" placeholder="Your Address">
-
+          <input id="phone-${requestId}" type="number" placeholder="Your Phone Number">
           <button id="submit-${requestId}">Submit</button>
           <button id="close-${requestId}" style="background:#ccc;">Close</button>
         </div>
@@ -57,12 +65,6 @@ async function loadRequests() {
     }
 
    
-    else if (isRequester) {
-      actionButton = `
-        <button id="withdraw-${requestId}">
-          Withdraw Request
-        </button>`;
-    }
 
   
     card.innerHTML = `
@@ -106,12 +108,16 @@ async function loadRequests() {
         const donorName = document.getElementById(`name-${requestId}`).value;
         const donorEmail = document.getElementById(`email-${requestId}`).value;
         const donorAddress = document.getElementById(`address-${requestId}`).value;
-
-        if (!donorName || !donorEmail || !donorAddress) {
+        const donorPhone = document.getElementById(`phone-${requestId}`).value;
+        if (!donorName || !donorEmail || !donorAddress || !donorPhone) {
           alert("Fill all fields");
           return;
         }
+if (donorPhone.length !== 10) {
+  alert("Phone number must be exactly 10 digits");
+  return;
 
+}
         try {
           const requestRef = doc(db, "requests", requestId);
           const requestSnap = await getDoc(requestRef);
@@ -139,7 +145,8 @@ async function loadRequests() {
             donorName,
             donorEmail,
             donorAddress,
-
+            donorPhone,
+            requesterPhone: requestData.phone || "N/A",
             price: requestData.price, // 💰
 
             status: "pickup_pending",
@@ -174,8 +181,17 @@ async function loadRequests() {
           status: "withdrawn"
         });
 
-        alert("Request withdrawn");
+       
 
+const deliverySnap = await getDocs(collection(db, "deliveries"));
+
+for (const d of deliverySnap.docs) {
+  if (d.data().requestId === requestId) {
+    await updateDoc(doc(db, "deliveries", d.id), {
+      status: "cancelled"
+    });
+  }
+} alert("Request withdrawn");
         loadRequests();
       });
     }
@@ -196,14 +212,13 @@ window.cancelDonation = async function (requestId) {
 
     const deliverySnap = await getDocs(collection(db, "deliveries"));
 
-    deliverySnap.forEach(async (d) => {
-      if (d.data().requestId === requestId) {
-        await updateDoc(doc(db, "deliveries", d.id), {
-          status: "cancelled"
-        });
-      }
+   for (const d of deliverySnap.docs) {
+  if (d.data().requestId === requestId) {
+    await updateDoc(doc(db, "deliveries", d.id), {
+      status: "cancelled"
     });
-
+  }
+}
     alert("Donation cancelled");
 
     loadRequests();

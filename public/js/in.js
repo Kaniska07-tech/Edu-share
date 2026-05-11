@@ -67,12 +67,12 @@ onAuthStateChanged(auth, async (user) => {
     loadDonationCount(user.uid);
 
   } else {
-    window.location.href = "home.html";
+    window.location.href = "index.html";
   }
 });
 
 document.getElementById("signOutBtn").addEventListener("click", () => {
   signOut(auth).then(() => {
-    window.location.href = "home.html";
+    window.location.href = "index.html";
   });
 });

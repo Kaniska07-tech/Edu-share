@@ -6,6 +6,16 @@ async function submitRequest() {
   const subject = document.getElementById("subject").value;
   const location = document.getElementById("location").value;
 const price = parseInt(document.getElementById("price").value);
+const phone = document.getElementById("phone").value;
+ if (!itemName || !subject || !location || !price || !phone) {
+    alert("Please fill all fields");
+    return;
+  }
+
+if (phone.length !== 10) {
+  alert("Phone number must be exactly 10 digits");
+  return;
+}
 if (price < 50 || price > 100) {
   alert("Price must be between ₹50 and ₹100");
   return;
@@ -16,6 +26,7 @@ if (price < 50 || price > 100) {
       subject,
       location,
       price,
+      phone, 
       userId: auth.currentUser.uid,
       status: "open",
       createdAt: new Date()
